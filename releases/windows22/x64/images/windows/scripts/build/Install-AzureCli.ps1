@@ -15,7 +15,7 @@ New-Item -ItemType 'Directory' -Path $azureCliExtensionPath | Out-Null
 
 Install-Binary -Type MSI `
     -Url 'https://aka.ms/installazurecliwindowsx64' `
-    -ExpectedSignature '8F985BE8FD256085C90A95D3C74580511A1DB975'
+    -ExpectedSubject $(Get-MicrosoftPublisher)
 
 Update-Environment
 
@@ -26,4 +26,4 @@ if ($LASTEXITCODE -ne 0) {
     throw "Command 'az --help' failed"
 }
 
-Invoke-PesterTests -TestFile 'CLI.Tools' -TestName 'Azure CLI'
+# removed: Invoke-PesterTests

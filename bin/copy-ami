@@ -3,6 +3,7 @@
 require 'aws-sdk-ec2' # v3
 require 'yaml'
 require 'slop'
+require 'io/console'
 
 AMI_DEV_PREFIX = "runs-on-dev"
 AMI_PROD_PREFIX = "runs-on-v2.2"
@@ -12,8 +13,9 @@ REGIONS = YAML.load_file(File.expand_path("../config.yml", __dir__)).fetch("regi
 options = {}
 
 usage = Slop::Options.new do |opts|
-  opts.banner = "Usage: #{$0} [--force] ami_id_or_name"
+  opts.banner = "Usage: #{$0} [--force] [--region <region>] ami_id_or_name"
   opts.bool '-f', '--force', 'Do not ask for confirmation'
+  opts.string '-r', '--region', 'Copy to a specific region'
   opts.bool '-h', '--help', 'Show help'
 end
 
@@ -31,6 +33,7 @@ end
 
 ami_id_or_name = options.arguments.first
 force = options.force?
+regions_to_copy = options.region? ? [options[:region]] : REGIONS
 
 def copy_ami_to_regions(ami_id_or_name, regions, force = false)
   ec2 = Aws::EC2::Client.new(region: SOURCE_REGION)
@@ -54,12 +57,13 @@ def copy_ami_to_regions(ami_id_or_name, regions, force = false)
     reply = if force
       'y'
     else
-      print "Make sure you know what you are doing (y/n) "
-      gets.chomp
+      print "Make sure you know what you are doing (y/n): "
+      STDOUT.flush
+      STDIN.getch
     end
 
     if reply.downcase != 'y'
-      puts "Exiting"
+      puts "\nExiting"
       exit 1
     end
   end
@@ -90,16 +94,13 @@ def copy_ami_to_regions(ami_id_or_name, regions, force = false)
     ec2.wait_until(:image_available, image_ids: [image_id])
     puts "AMI #{image_id} is now available in region #{region}"
 
-    ec2.modify_image_attribute({
-      image_id: image_id,
-      launch_permission: {
-        add: [{ group: 'all' }]
-      }
-    })
-    puts "Launch permissions for AMI #{image_id} updated to public"
-
-    # Make the underlying snapshot public too
+    # Wait for the snapshot to be available
     snapshot_id = ec2.describe_images(image_ids: [image_id]).images.first.block_device_mappings.first.ebs.snapshot_id
+    puts "Waiting for snapshot #{snapshot_id} to be available..."
+    ec2.wait_until(:snapshot_completed, snapshot_ids: [snapshot_id])
+    puts "Snapshot #{snapshot_id} is now available"
+
+    # Make the underlying snapshot public
     ec2.modify_snapshot_attribute({
       snapshot_id: snapshot_id,
       attribute: "createVolumePermission",
@@ -108,9 +109,18 @@ def copy_ami_to_regions(ami_id_or_name, regions, force = false)
     })
     puts "Snapshot #{snapshot_id} for AMI #{image_id} updated to public"
 
+    # Make the AMI public
+    ec2.modify_image_attribute({
+      image_id: image_id,
+      launch_permission: {
+        add: [{ group: 'all' }]
+      }
+    })
+    puts "Launch permissions for AMI #{image_id} updated to public"
+
     # to avoid throttling
     sleep 2
   end
 end
 
-copy_ami_to_regions(ami_id_or_name, REGIONS, force)
+copy_ami_to_regions(ami_id_or_name, regions_to_copy, force)

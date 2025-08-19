@@ -112,8 +112,8 @@ source "amazon-ebs" "build_ebs" {
   # make AMIs publicly accessible
   ami_groups                                = ["all"]
   ebs_optimized                             = true
-  spot_instance_types                       = ["c6a.metal", "m6a.metal", "c6i.metal", "m6i.metal", "c7i.metal-24xl", "m7i.metal-24xl"]
-  spot_price                                = "auto"
+  # spot_instance_types                       = ["c6a.metal", "m6a.metal", "c6i.metal", "m6i.metal", "c7i.metal-24xl", "m7i.metal-24xl"]
+  instance_type                             = "m7a.large"
   region                                    = "${var.region}"
   subnet_id                                 = "${var.subnet_id}"
   associate_public_ip_address               = "true"
@@ -331,21 +331,21 @@ build {
     restart_timeout = "30m"
   }
 
-  provisioner "powershell" {
-    elevated_password = "${var.install_password}"
-    elevated_user     = "${var.install_user}"
-    environment_vars  = ["IMAGE_FOLDER=${var.image_folder}", "TEMP_DIR=${var.temp_dir}"]
-    scripts           = [
-      # "${path.root}/../scripts/build/Install-VisualStudio.ps1",
-      "${path.root}/../scripts/build/Install-KubernetesTools.ps1"
-    ]
-    valid_exit_codes  = [0, 3010]
-  }
+  # provisioner "powershell" {
+  #   elevated_password = "${var.install_password}"
+  #   elevated_user     = "${var.install_user}"
+  #   environment_vars  = ["IMAGE_FOLDER=${var.image_folder}", "TEMP_DIR=${var.temp_dir}"]
+  #   scripts           = [
+  #     "${path.root}/../scripts/build/Install-VisualStudio.ps1",
+  #     "${path.root}/../scripts/build/Install-KubernetesTools.ps1"
+  #   ]
+  #   valid_exit_codes  = [0, 3010]
+  # }
 
-  provisioner "windows-restart" {
-    check_registry  = true
-    restart_timeout = "20m"
-  }
+  # provisioner "windows-restart" {
+  #   check_registry  = true
+  #   restart_timeout = "20m"
+  # }
 
   provisioner "powershell" {
     pause_before     = "2m0s"
@@ -355,7 +355,7 @@ build {
       # "${path.root}/../scripts/build/Install-WDK.ps1",
       # "${path.root}/../scripts/build/Install-VSExtensions.ps1",
       "${path.root}/../scripts/build/Install-AzureCli.ps1",
-      "${path.root}/../scripts/build/Install-AzureDevOpsCli.ps1",
+      # "${path.root}/../scripts/build/Install-AzureDevOpsCli.ps1",
       "${path.root}/../scripts/build/Install-ChocolateyPackages.ps1",
       "${path.root}/../scripts/build/Install-JavaTools.ps1",
       "${path.root}/../scripts/build/Install-Kotlin.ps1",
@@ -381,14 +381,14 @@ build {
     environment_vars = ["IMAGE_FOLDER=${var.image_folder}", "TEMP_DIR=${var.temp_dir}"]
     scripts          = [
       "${path.root}/../scripts/build/Install-ActionsCache.ps1",
-      "${path.root}/../scripts/build/Install-Ruby.ps1",
-      "${path.root}/../scripts/build/Install-PyPy.ps1",
+      # "${path.root}/../scripts/build/Install-Ruby.ps1",
+      # "${path.root}/../scripts/build/Install-PyPy.ps1",
       "${path.root}/../scripts/build/Install-Toolset.ps1",
       "${path.root}/../scripts/build/Configure-Toolset.ps1",
       "${path.root}/../scripts/build/Install-NodeJS.ps1",
       # "${path.root}/../scripts/build/Install-AndroidSDK.ps1",
       "${path.root}/../scripts/build/Install-PowershellAzModules.ps1",
-      "${path.root}/../scripts/build/Install-Pipx.ps1",
+      # "${path.root}/../scripts/build/Install-Pipx.ps1",
       "${path.root}/../scripts/build/Install-Git.ps1",
       "${path.root}/../scripts/build/Install-GitHub-CLI.ps1",
       # "${path.root}/../scripts/build/Install-PHP.ps1",
@@ -405,23 +405,23 @@ build {
       "${path.root}/../scripts/build/Install-WinAppDriver.ps1",
       # "${path.root}/../scripts/build/Install-R.ps1",
       "${path.root}/../scripts/build/Install-AWSTools.ps1",
-      "${path.root}/../scripts/build/Install-DACFx.ps1",
+      # "${path.root}/../scripts/build/Install-DACFx.ps1",
       # "${path.root}/../scripts/build/Install-MysqlCli.ps1",
       "${path.root}/../scripts/build/Install-SQLPowerShellTools.ps1",
       "${path.root}/../scripts/build/Install-SQLOLEDBDriver.ps1",
       "${path.root}/../scripts/build/Install-DotnetSDK.ps1",
       "${path.root}/../scripts/build/Install-Mingw64.ps1",
       # "${path.root}/../scripts/build/Install-Haskell.ps1",
-      "${path.root}/../scripts/build/Install-Stack.ps1",
+      # "${path.root}/../scripts/build/Install-Stack.ps1",
       # "${path.root}/../scripts/build/Install-Miniconda.ps1",
-      "${path.root}/../scripts/build/Install-AzureCosmosDbEmulator.ps1",
+      # "${path.root}/../scripts/build/Install-AzureCosmosDbEmulator.ps1",
       # "${path.root}/../scripts/build/Install-Mercurial.ps1",
       "${path.root}/../scripts/build/Install-Zstd.ps1",
-      "${path.root}/../scripts/build/Install-NSIS.ps1",
+      # "${path.root}/../scripts/build/Install-NSIS.ps1",
       "${path.root}/../scripts/build/Install-Vcpkg.ps1",
-      "${path.root}/../scripts/build/Install-PostgreSQL.ps1",
+      # "${path.root}/../scripts/build/Install-PostgreSQL.ps1",
       # "${path.root}/../scripts/build/Install-Bazel.ps1",
-      "${path.root}/../scripts/build/Install-AliyunCli.ps1",
+      # "${path.root}/../scripts/build/Install-AliyunCli.ps1",
       "${path.root}/../scripts/build/Install-RootCA.ps1",
       # "${path.root}/../scripts/build/Install-MongoDB.ps1",
       # "${path.root}/../scripts/build/Install-CodeQLBundle.ps1",
@@ -439,7 +439,7 @@ build {
       "${path.root}/../scripts/build/Configure-GDIProcessHandleQuota.ps1",
       "${path.root}/../scripts/build/Configure-Shell.ps1",
       "${path.root}/../scripts/build/Configure-DeveloperMode.ps1",
-      "${path.root}/../scripts/build/Install-LLVM.ps1"
+      # "${path.root}/../scripts/build/Install-LLVM.ps1"
     ]
   }
 
@@ -494,15 +494,92 @@ build {
     skip_clean       = true
   }
 
+  # added: disable page file (1GiB)
+  provisioner "powershell" {
+    inline = [
+      "Write-Host 'Disabling page file...'",
+      "Set-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Memory Management' -Name PagingFiles -Value @() -Force"
+    ]
+  }
+
   provisioner "windows-restart" {
     restart_timeout = "20m"
   }
 
+  # Modify the unattend.xml file before sysprep
   provisioner "powershell" {
     inline = [
-      "if( Test-Path $env:SystemRoot\\System32\\Sysprep\\unattend.xml ){ rm $env:SystemRoot\\System32\\Sysprep\\unattend.xml -Force}",
-      "& $env:SystemRoot\\System32\\Sysprep\\Sysprep.exe /oobe /generalize /mode:vm /quiet /quit",
-      "while($true) { $imageState = Get-ItemProperty HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Setup\\State | Select ImageState; if($imageState.ImageState -ne 'IMAGE_STATE_GENERALIZE_RESEAL_TO_OOBE') { Write-Output $imageState.ImageState; Start-Sleep -s 10 } else { break } }"
+      "Write-Output 'Modifying unattend.xml file...'",
+      "$xmlPath = 'C:\\ProgramData\\Amazon\\EC2Launch\\sysprep\\unattend.xml'",
+      "if (Test-Path $xmlPath) {",
+      "    # Read the XML content as text",
+      "    $content = Get-Content $xmlPath -Raw",
+      "    # Set PersistAllDeviceInstalls to false",
+      "    if ($content -match '<PersistAllDeviceInstalls>true</PersistAllDeviceInstalls>') {",
+      "        $content = $content -replace '<PersistAllDeviceInstalls>true</PersistAllDeviceInstalls>', '<PersistAllDeviceInstalls>false</PersistAllDeviceInstalls>'",
+      "        Write-Output 'Set PersistAllDeviceInstalls to false'",
+      "    }",
+      # "    # Remove the entire RunSynchronous section",
+      # "    $pattern = '<RunSynchronous>[\\s\\S]*?</RunSynchronous>'",
+      # "    if ($content -match $pattern) {",
+      # "        $content = $content -replace $pattern, ''",
+      # "        Write-Output 'Removed RunSynchronous commands'",
+      # "    }",
+      "    # Save the modified content",
+      "    $content | Set-Content -Path $xmlPath -Encoding UTF8",
+      "    Write-Output 'Successfully modified unattend.xml'",
+      "    Write-Output '--- Modified unattend.xml content ---'",
+      "    Get-Content $xmlPath | Write-Output",
+      "} else {",
+      "    Write-Error 'unattend.xml not found at expected location'",
+      "}"
+    ]
+  }
+
+  provisioner "powershell" {
+    valid_exit_codes = [0, 2]
+    inline = [
+      "Write-Output 'Removing temp directory.'",
+      "Remove-Item -Recurse -Force ${var.temp_dir}",
+      "Write-Output 'Disabling Windows Recovery Environment before Sysprep.'",
+      "reagentc /disable",
+      # "if( Test-Path $env:SystemRoot\\System32\\Sysprep\\unattend.xml ){ rm $env:SystemRoot\\System32\\Sysprep\\unattend.xml -Force}",
+      "& $env:SystemRoot\\System32\\Sysprep\\Sysprep.exe /oobe /generalize /mode:vm /quiet /quit /unattend:\"C:\\ProgramData\\Amazon\\EC2Launch\\sysprep\\unattend.xml\"",
+      "$timeout = New-TimeSpan -Minutes 15",
+      "$stopwatch = [System.Diagnostics.Stopwatch]::StartNew()",
+      "$successState = 'IMAGE_STATE_GENERALIZE_RESEAL_TO_OOBE'",
+      "$failureState = 'IMAGE_STATE_UNDEPLOYABLE'",
+      "while($stopwatch.Elapsed -lt $timeout) {",
+      "    $imageState = Get-ItemProperty HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Setup\\State | Select-Object -ExpandProperty ImageState -ErrorAction SilentlyContinue",
+      "    if($imageState -eq $successState) {",
+      "        Write-Output 'Sysprep completed successfully.'",
+      "        break",
+      "    }",
+      "    if($imageState -eq $failureState) {",
+      "        Write-Error 'Sysprep failed. State is UNDEPLOYABLE.'",
+      "        $pantherPath = \"$env:SystemRoot\\System32\\Sysprep\\Panther\"",
+      "        if (Test-Path $pantherPath) {",
+      "            Get-ChildItem -Path $pantherPath -Filter '*.log' -Recurse | ForEach-Object {",
+      "                Write-Output \"--- Log file: $_.FullName ---\"",
+      "                Get-Content $_.FullName | Write-Output",
+      "            }",
+      "        }",
+      "        exit 1",
+      "    }",
+      "    Write-Output \"Current ImageState: $imageState. Waiting...\"",
+      "    Start-Sleep -s 10",
+      "}",
+      "if ($stopwatch.Elapsed -ge $timeout) {",
+      "    Write-Error \"Sysprep did not complete in time. Last state: $imageState\"",
+      "    $pantherPath = \"$env:SystemRoot\\System32\\Sysprep\\Panther\"",
+      "    if (Test-Path $pantherPath) {",
+      "        Get-ChildItem -Path $pantherPath -Filter '*.log' -Recurse | ForEach-Object {",
+      "            Write-Output \"--- Log file (timeout): $_.FullName ---\"",
+      "            Get-Content $_.FullName | Write-Output",
+      "        }",
+      "    }",
+      "    exit 1",
+      "}"
     ]
   }
 

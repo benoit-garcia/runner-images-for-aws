@@ -22,7 +22,7 @@ jobs:
     steps:
       - name: Generate release name
         id: generate-release-name
-        run: echo "release_name=$(date +%Y%m%d%H%M%S)" >> $GITHUB_OUTPUT
+        run: echo "release_name=linux-$(date +%Y%m%d%H%M%S)" >> $GITHUB_OUTPUT
       - uses: actions/checkout@v4
       - uses: ruby/setup-ruby@v1
         with:
@@ -36,7 +36,7 @@ jobs:
           aws-region: us-east-1
       - name: Cleanup dev AMIs
         env:
-          AMI_PREFIX: runs-on-dev
+          AMI_PREFIX: runs-on-dev-ubuntu
         run: bundle exec bin/utils/cleanup-amis --force
       - name: Synchronize with upstream repository
         run: bundle exec bin/sync
@@ -56,6 +56,7 @@ jobs:
     secrets: inherit
     with:
       image_id: ${{ matrix.image_id }}
+      platform: linux
 
   generate-release:
     name: Generate release
